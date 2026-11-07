@@ -42,3 +42,23 @@ export async function createProduct(req: Request, res: Response) {
 
   res.status(201).json(product);
 }
+
+export async function updateProduct(req: Request, res: Response) {
+  const { id, name, price } = req.body ?? {};
+
+  const productId = parseId(id);
+  if (!productId) {
+    return res.status(400).json({ message: 'id wajib diisi dengan angka bulat positif' });
+  }
+
+  if (!isValidProduct(name, price)) {
+    return res.status(400).json({ message: 'name wajib berupa teks dan price wajib berupa angka bulat >= 0' });
+  }
+
+  const product = await prisma.product.update({
+    where: { id: productId },
+    data: { name: name.trim(), price },
+  });
+
+  res.status(200).json(product);
+}
